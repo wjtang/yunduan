@@ -13,7 +13,9 @@ export default {
 	},
 	getreq(url,data){
 		return new Promise((resolve, reject) => {
-			axios.get()
+			axios.get(base_url + url).then(response => {
+				resolve(response.data)
+			})
 		})
 	}
 }
