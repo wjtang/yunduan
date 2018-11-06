@@ -27,6 +27,7 @@ export const router =  new Router({
 
 router.beforeEach((to,from,next) => {
 	const loginIndex = localStorage.loginIndex;
+	// console.log(to.query)
 	if(!store.state.schoolLogo){
 		store.commit('SET_SCHOOL',{logoUrl:localStorage.getItem('schoolLogo'),title:localStorage.getItem('schoolName')})
 	}

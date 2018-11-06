@@ -13,11 +13,13 @@
           </ul>
         </div>
       </div>
+     <v-loading v-show="loading"></v-loading>
   </div>
 </template>
 
 <script>
 import dropdown from './basetool/dropdown.vue'
+import loading from './basetool/loading.vue'
 export default {
   name: 'subject',
   data () {
@@ -26,7 +28,8 @@ export default {
       logoUrl:'',
       subjecttype:[{imgUrl: require('../assets/img/orderlogo.png'),title:'顺序练习'},{imgUrl:require('../assets/img/randomlogo.png'),title:'随机练习'},{imgUrl: require('../assets/img/errorquslogo.png'),title:'错题练习'},{imgUrl:require('../assets/img/examlogo.png'),title:'考试'}],
       activename: '',
-      clickflag: true
+      clickflag: true,
+      loading: false
     }
   },
   mounted() {
@@ -51,12 +54,14 @@ export default {
               case 3 :
                 this.subjecttype[3].imgUrl = require('../assets/img/examlogo1.png'); 
             }
+            this.loading = true;
             this.$router.push({path:'/practice'})
         }
       }
   },
   components : {
-    'v-dropdown': dropdown
+    'v-dropdown': dropdown,
+    'v-loading': loading
   }
 
 }
