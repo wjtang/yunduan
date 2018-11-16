@@ -1,15 +1,13 @@
 <template>
   <div class="pullup">
     <div class="practice-bottom" :class="{practice_bottom_active: choosetitle}">
-        <div class="practice-bottom-left" @click="setcollection">
-          <i class="iconfont" :class="{icon_xing: !collection,icon_xingxing: collection}"></i>
-          <span>添加至错题</span>
+        <div class="practice-bottom-left" @click="submitexam">
+          <!-- <i class="iconfont" :class="{icon_xing: !collection,icon_xingxing: collection}"></i>
+          <span>添加至错题</span> -->
+          <img src="../../assets/img/exam_push.png" v-show="!ispush">
+          <span v-show="!ispush">交卷</span>
         </div>
         <div class="practice-bottom-right">
-            <i class="iconfont icon-gouxuan"></i>
-             <span>{{titletruenum}}</span>
-            <i class="iconfont icon-shanchuguanbicha2"></i>
-            <span>{{titleerrornum}}</span>
             <img src="../../assets/img/more.png" @click="showtitlebox">
             <span>{{titleIndex}}/{{titlesumnum}}</span>
         </div>
@@ -18,7 +16,7 @@
           <p>{{subjectName}}</p>
           <div class="titlebox-main" ref="wrapper">
             <ul>
-              <li v-for="(item,index) in titlenum" @click="gotitle(index)"><span :class="{trueanswer: item.state == 2, erroranswer: item.state == 3}">{{item.menuSort}}</span></li>
+              <li v-for="(item,index) in titlenum" @click="gotitle(index)"><span :class="{done: item.state == 2, notdone: item.state == 1}">{{item.menuSort}}</span></li>
             </ul>
           </div>
       </div>
@@ -37,7 +35,8 @@ export default {
       choosetitle: false,
       subjectName:'',
       titletruenum:0,
-      titleerrornum:0
+      titleerrornum:0,
+      ispush:false
     }
   },
   mounted(){
@@ -45,6 +44,11 @@ export default {
       // this.titlesumnum = this.$store.state.
       this.$nextTick(() => {
       this.scroll = new BScroll(this.$refs.wrapper,{click:true});
+      if(!this.$route.query.ispush){
+
+      }else{
+        this.ispush = true;
+      }
     })
   },
   computed :{
@@ -58,12 +62,8 @@ export default {
        let truenum = 0;
        let errornum = 0;
        data.forEach((item,index) => {
-        if(item.state == 2){truenum++}
-        if(item.state == 3){errornum++}
-         num.push({menuSort:item.menuSort,state:item.state})
+         num.push({menuSort:item.sort,state:item.state})
        })
-       this.titletruenum = truenum;
-       this.titleerrornum = errornum;
      }
       // console.log(num)
        return num
@@ -102,7 +102,14 @@ export default {
     gotitle(index){
       this.choosetitle = !this.choosetitle;
       index = index +1;
-      this.$router.push({path:'/practice?schoolId='+this.$route.query.schoolId+'&subjectId='+this.$route.query.subjectId+'&subjectType='+this.$route.query.subjectType+'&titleindex='+index})
+      if(!this.ispush){
+      this.$router.push({path:'/exam?schoolId='+this.$route.query.schoolId+'&subjectId='+this.$route.query.subjectId+'&examId='+this.$route.query.examId+'&titleindex='+index})
+      }else{
+        this.$router.push({path:'/exam?schoolId='+this.$route.query.schoolId+'&subjectId='+this.$route.query.subjectId+'&examId='+this.$route.query.examId+'&titleindex='+index+'&ispush=1'})
+      }
+    },
+    submitexam(){
+      this.$emit('submitexam');
     }
   }
 }
@@ -121,40 +128,30 @@ export default {
         justify-content: space-between;
         transition: all .5s;
         .practice-bottom-left{
-
-             i:nth-child(1){
-             font-size: 26px;
-             padding-left: 53px;
-             padding-top: 36px;
+          display: flex;
+          font-size: 26px;
+          img{
+            height: 30px;
+            margin-left: 36px;
+            margin-top: 34px;
+            margin-right: 12px;
           }
-             span{
-             padding-left: 10px;
-             line-height: 98px;
-             font-size: 26px;
-        }
-             .icon_xingxing{
-              color: yellow
-        } 
+          span{
+            line-height: 98px;
+          }
       }
       .practice-bottom-right{
           width: 360px;
           display: flex;
           line-height: 98px;
+          justify-content: flex-end;
           .icon-gouxuan, .icon-shanchuguanbicha2{
             font-size: 28px;
             padding-right: 8px;
           }
           span{
             font-size: 28px;
-          }
-          .icon-gouxuan, span:nth-child(2){
-            color: #358AFF;
-          }
-          .icon-shanchuguanbicha2{
-            padding-left: 34px;
-          }
-          .icon-shanchuguanbicha2 , span:nth-child(4){
-            color: #ED512D;
+            padding-right: 60px;
           }
           img{
             height: 29px;
@@ -207,15 +204,10 @@ export default {
               font-size: 32px;
               color: grey;
             }
-            .trueanswer{
+            .done{
                 background-color: #358AFF;
                 color: white;
                 border-color: #358AFF;
-            }
-            .erroranswer{
-                background-color: #ED512D;
-                color: white;
-                border-color: #ED512D;
             }
           }
         }

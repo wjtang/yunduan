@@ -5,7 +5,7 @@
            <p>{{choosetitle}}</p> <img src="../../assets/img/down.png">
            <div class="downmenu" v-show="dropcanshow">
               <ul>
-                <li v-for="item in downdata" @click="choosetype(item)">{{item.data}}</li>
+                <li v-for="(item,index) in downdata" @click="choosetype(item.subjectName,item.subjectId)">{{item.subjectName}}</li>
               </ul>
            </div>
       </div>
@@ -13,24 +13,44 @@
 </template>
 
 <script>
+import api from '../../api/sendrequest.js'
 export default {
   name: 'dropdown',
   data () {
     return {
       choosetitle: '',
-      downdata: [{id:0,data:'高处安装、拆除、维护 —初训'},{id:1,data:'111123'},{id:0,data:'12312323'}],
+      downdata: [],
       dropcanshow: false
     }
   },
   mounted() {
-     this.choosetitle = this.downdata[0].data;
+     if(this.$store.state.subjectName){
+      this.choosetitle = this.$store.state.subjectName;
+      this.downdata = this.$store.state.subjectList;
+     }else{
+     // this.choosetitle = this.downdata[0].subjectName;
+      api.getSubjectList().then(data => {
+     if(data.code == 0){
+      this.downdata = data.data;
+      this.choosetitle = data.data[0].subjectName;
+      this.$store.dispatch('set_subjectlist',data.data);
+      this.$store.dispatch('set_subjectname',data.data[0])
+     }else{
+      if(data.code == 400){
+        this.$router.push({path:'/?schoolId='+this.$route.query.schoolId});
+      }
+     }
+   })
+   }
   },
   methods : {
       showdrop(){
         this.dropcanshow = !this.dropcanshow;
       },
-      choosetype(data){
-        this.choosetitle = data.data;
+      choosetype(data,index){
+        this.choosetitle = data;
+        this.$store.commit('SET_SUBJECTNAME',{subjectId:index,subjectName:data})
+        // console.log(this.$store.state.subjectId)
       }
   }
 

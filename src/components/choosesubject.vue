@@ -20,12 +20,11 @@
 <script>
 import dropdown from './basetool/dropdown.vue'
 import loading from './basetool/loading.vue'
+import api from '../api/sendrequest.js'
 export default {
   name: 'subject',
   data () {
     return {
-      title:'',
-      logoUrl:'',
       subjecttype:[{imgUrl: require('../assets/img/orderlogo.png'),title:'顺序练习'},{imgUrl:require('../assets/img/randomlogo.png'),title:'随机练习'},{imgUrl: require('../assets/img/errorquslogo.png'),title:'错题练习'},{imgUrl:require('../assets/img/examlogo.png'),title:'考试'}],
       activename: '',
       clickflag: true,
@@ -33,8 +32,15 @@ export default {
     }
   },
   mounted() {
-     this.title = this.$store.state.schoolName;
-     this.logoUrl = this.$store.state.schoolLogo
+
+  },
+  computed : {
+    title : function(){
+      return this.$store.state.schoolName;
+    },
+    logoUrl : function(){
+      return  this.$store.state.schoolLogo;
+    }
   },
   methods : {
       gosubject(data,index){
@@ -44,18 +50,48 @@ export default {
             switch(index){
               case 0 :
                 this.subjecttype[0].imgUrl = require('../assets/img/orderlogo1.png');
+                api.getSequencelist(this.$store.state.subjectId,index+1).then(data1 => {
+              // console.log(data)
+              api.getSequencelist(this.$store.state.subjectId,index+1,data1.data.questionInfo.sort,1).then(data => {
+                this.$store.dispatch('set_questioninfo',data.data);
+                index = index+1
+                this.$store.dispatch('set_menusortinfolist',data.data.menuSortInfoList);
+                this.$store.dispatch('set_questionid',data.data.questionInfo.questionId);
+                this.$store.dispatch('set_questioninfoall','');
+                this.$router.push({path:'/practice?schoolId='+this.$route.query.schoolId+'&subjectId='+this.$store.state.subjectId+'&subjectType='+index+'&titleindex='+data.data.questionInfo.sort})
+              })
+            })
                 break;
               case 1 :
                 this.subjecttype[1].imgUrl = require('../assets/img/randomlogo1.png');
+                api.getSequencelist(this.$store.state.subjectId,index+1,1,2).then(data => {
+                    this.$store.dispatch('set_questioninfo',data.data);
+                    this.$store.dispatch('set_questionid',data.data.questionInfo.questionId);
+                    index = index+1;
+                    this.$router.push({path:'/practice?schoolId='+this.$route.query.schoolId+'&subjectId='+this.$store.state.subjectId+'&subjectType='+index+'&titleindex='+data.data.questionInfo.sort})
+                })
                 break;
               case 2 :
                 this.subjecttype[2].imgUrl = require('../assets/img/errorquslogo1.png');
+                api.getSequencelist(this.$store.state.subjectId,index+1,1,2).then(data => {
+                    this.$store.dispatch('set_questioninfo',data.data);
+                    this.$store.dispatch('set_questionid',data.data.questionInfo.questionId);
+                    index = index+1;
+                    this.$router.push({path:'/practice?schoolId='+this.$route.query.schoolId+'&subjectId='+this.$store.state.subjectId+'&subjectType='+index+'&titleindex='+data.data.questionInfo.sort})
+                })
                 break;
               case 3 :
                 this.subjecttype[3].imgUrl = require('../assets/img/examlogo1.png'); 
+                api.getexaminfo(this.$store.state.subjectId).then(data => {
+                      this.$store.dispatch('set_exambasedata',data.data);
+                      // index = index+1;
+                      this.$router.push({path:'/exammessage?schoolId='+this.$route.query.schoolId+'&subjectId='+this.$store.state.subjectId})
+                })
+                break;
             }
             this.loading = true;
-            this.$router.push({path:'/practice'})
+            // this.$router.push({path:'/practice?subjectId='+this.$store.state.subjectId+'&subjectType='+index})
+            
         }
       }
   },
@@ -89,7 +125,7 @@ export default {
       }
       .subject-main{
           width: 100%;
-          height: calc(100% - 228px);
+          min-height: calc(100% - 228px);
           background-image: url('../assets/img/subjectbottom.jpg');
           background-repeat: no-repeat;
           background-size: cover;

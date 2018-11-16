@@ -25,12 +25,11 @@
 </template>
 
 <script>
+import api from '../api/sendrequest.js'
 export default {
   name: 'login',
   data () {
     return {
-      title: '',
-      logoUrl: '',
       password:'',
       memberNum:'',
       errorshow: false,
@@ -38,17 +37,59 @@ export default {
     }
   },
   mounted() {
-    this.$store.commit('SET_SCHOOL',{logoUrl:require('../assets/img/logo.png'),title:'佛山市高明区育安职业培训学校'});
-    this.title = this.$store.state.schoolName;
-    this.logoUrl = this.$store.state.schoolLogo;
+    // this.$store.commit('SET_SCHOOL',{logoUrl:require('../assets/img/logo.png'),title:'佛山市高明区育安职业培训学校'});
+      // this.$router.push({path:'/?schoolId='+parseInt(localStorage.getItem('schoolId'))});
+      if(!this.$route.query.schoolId){
+         this.$router.push({path:'/?schoolId='+localStorage.getItem('schoolId')})
+      }
+  },
+  computed : {
+    title : function(){
+      return this.$store.state.schoolName;
+    },
+    logoUrl : function(){
+      return  this.$store.state.schoolLogo;
+    }
   },
   methods : {
         CheckLogin(){
           // this.errorshow = true;
-          this.$router.push({path:'/subject'})
-          console.log(this.memberNum,this.password);
+          // this.$router.push({path:'/subject'})
+          if(this.memberNum && this.password){
+          api.login(this.memberNum,this.password).then(data => {
+              if(data.code == 0){
+              if(data.data.code != 0 && !data.data.token){
+              this.errorshow = true;
+              this.errorMessage = data.data.msg
+              let self = this
+              setTimeout(function(){
+                self.errorshow = false;
+              },2000)
+              }else{
+                localStorage.setItem('usertoken',data.data.token)
+                localStorage.setItem('userupdate',data.data.expire)
+                this.$router.push({path:'/subject?schoolId='+this.$route.query.schoolId})
+              }
+              }else{
+                this.errorshow = true;
+               this.errorMessage = data.msg
+              } 
+          })
+        }else{
+          if(this.memberNum){
+             this.errorMessage = '请输入密码'
+          }else{
+            this.errorMessage = '请输入账号'
+          }
+              this.errorshow = true;
+              let self = this
+              setTimeout(function(){
+                self.errorshow = false;
+              },2000)
         }
-  },
+          // console.log(this.memberNum,this.password);
+        }
+  }
 
 }
 </script>
@@ -57,7 +98,7 @@ export default {
 <style lang="less" scoped>
    .login{
     width: 100%;
-    height: 100%;
+    min-height: 100%;
     background-image: url('../assets/img/login_backg.jpg');
     background-position: center center;
     background-size:  cover;
@@ -68,7 +109,6 @@ export default {
         display: block;
         margin: 0 auto;
         margin-top: 128px;
-        width: 150px;
         height: 150px;
     }
       p{
@@ -83,7 +123,9 @@ export default {
         width: 613px;
         margin: 0 auto;
         margin-top: 218px;
+        padding-bottom: 10px;
         .member-num , .password{
+          height: 85px !important;
           overflow: hidden;
           span{
             display: block;
