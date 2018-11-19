@@ -301,7 +301,7 @@ export default {
       setTimeout(() => {
         this.errorshow = false;
       },1500);
-      this.$router.push('/?schoolId='+this.$route.query.schoolId);
+      this.$router.push('/login?schoolId='+this.$route.query.schoolId);
    }
   },
   created(){

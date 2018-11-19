@@ -36,7 +36,15 @@ export default {
   },
   computed : {
     title : function(){
+      if(this.$store.state.schoolName && this.$store.state.schoolId == this.$route.query.schoolId){
       return this.$store.state.schoolName;
+    }else{
+      localStorage.setItem('schoolId',this.$route.query.schoolId);
+      api.getschool(this.$route.query.schoolId).then(data => {
+         this.$store.dispatch('set_school',data.data);
+         return this.$store.state.schoolName;
+      })
+    }
     },
     logoUrl : function(){
       return  this.$store.state.schoolLogo;

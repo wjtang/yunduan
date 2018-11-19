@@ -40,12 +40,20 @@ export default {
     // this.$store.commit('SET_SCHOOL',{logoUrl:require('../assets/img/logo.png'),title:'佛山市高明区育安职业培训学校'});
       // this.$router.push({path:'/?schoolId='+parseInt(localStorage.getItem('schoolId'))});
       if(!this.$route.query.schoolId){
-         this.$router.push({path:'/?schoolId='+localStorage.getItem('schoolId')})
+         this.$router.push({path:'/login?schoolId='+localStorage.getItem('schoolId')})
       }
   },
   computed : {
     title : function(){
+      if(this.$store.state.schoolName && this.$store.state.schoolId == this.$route.query.schoolId){
       return this.$store.state.schoolName;
+    }else{
+      api.getschool(this.$route.query.schoolId).then(data => {
+         this.$store.dispatch('set_school',data.data);
+         localStorage.setItem('schoolId',this.$route.query.schoolId);
+         return this.$store.state.schoolName;
+      })
+    }
     },
     logoUrl : function(){
       return  this.$store.state.schoolLogo;

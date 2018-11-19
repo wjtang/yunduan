@@ -37,7 +37,7 @@ export default {
       this.$store.dispatch('set_subjectname',data.data[0])
      }else{
       if(data.code == 400){
-        this.$router.push({path:'/?schoolId='+this.$route.query.schoolId});
+        this.$router.push({path:'/login?schoolId='+this.$route.query.schoolId});
       }
      }
    })

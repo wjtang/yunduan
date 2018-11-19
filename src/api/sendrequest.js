@@ -26,6 +26,9 @@ export default {
 			})
 		})
 	},
+	getschoolist(){
+		return this.postreq('/api/student/getSchoolList')
+	},
 	getschool(id){
 		return this.postreq('/api/student/getSchoolInfo',{schoolId:id})
 	},

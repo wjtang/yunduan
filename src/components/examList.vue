@@ -37,7 +37,7 @@ export default {
        this.list = data.data.list;
      }else{
       if(data.code == 400){
-        this.$router.push('/?schoolId='+this.$route.query.schoolId);
+        this.$router.push('/login?schoolId='+this.$route.query.schoolId);
       }
      }
     });
